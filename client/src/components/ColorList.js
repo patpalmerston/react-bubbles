@@ -7,29 +7,54 @@ const initialColor = {
 	code: { hex: '' }
 };
 
-const ColorList = ({ colors, updateColors }) => {
-	console.log(colors);
+const ColorList = ({ colors, updateColors, getColors }) => {
+
 	const [editing, setEditing] = useState(false);
-	const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [colorToEdit, setColorToEdit] = useState(initialColor);
+  
+  console.log('colorToEdit', colorToEdit);
 
 	const editColor = color => {
 		setEditing(true);
 		setColorToEdit(color);
 	};
 
-	const saveEdit = e => {
-		e.preventDefault();
+  // takes the click event and calls saveEdit on that event with the event action and colorToEdit
+  const onSaveEdit = (event) => {
+    saveEdit(event, colorToEdit)
+  }
+	//the current color to save is in the colorToEdit State so add it to the params
+	const saveEdit = (event, colorToEdit) => {
+		console.log('saveEdit', colorToEdit);
+		event.preventDefault();
 		// Make a put request to save your updated color
 		// think about where will you get the id from...
 		// where is is saved right now?
+		axiosWithAuth()
+			.put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
+			.then(res => {
+				console.log(res.data);
+				//update colors is setColorsList from BubblePage and is the updated state
+				// colors is the colorsList from BubblePage that is the current state
+				updateColors(
+					colors.map(color => (color.id != colorToEdit.id ? color : res.data))
+				);
+			})
+			.catch(err => {
+				console.log(err.response);
+			});
+
+		
 	};
 
-	const deleteColor = id => {
-    // make a delete request to delete this color
-    axiosWithAuth()
-      .delete(`http://localhost:5000/api/colors/${id}`)
-      .then(res => setColorToEdit(res.data))
-      .catch(err => console.err(err))
+
+  
+	const deleteColor = color => {
+		// make a delete request to delete this color
+		axiosWithAuth()
+			.delete(`http://localhost:5000/api/colors/${color.id}`)
+			.then(res => updateColors(res.data))
+			.catch(err => console.error(err));
 	};
 
 	return (
@@ -76,7 +101,7 @@ const ColorList = ({ colors, updateColors }) => {
 						/>
 					</label>
 					<div className='button-row'>
-						<button type='submit'>save</button>
+						<button type='submit' onClick={onSaveEdit}>save</button>
 						<button onClick={() => setEditing(false)}>cancel</button>
 					</div>
 				</form>
