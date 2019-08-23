@@ -15,9 +15,10 @@ function App(props) {
 			.post('http://localhost:5000/api/login', user)
 			.then(res => {
 				localStorage.setItem('token', res.data.payload);
-				props.history.push('/login');
+				console.log('token', res.data.payload);
+				props.history.push('/');
 			})
-			.catch(err => console.log(err.message));
+			.catch(err => console.log('Your Error is a', err.message));
 	};
 
 	return (
@@ -29,7 +30,7 @@ function App(props) {
 					render={props => <Login {...props} submitUser={submitUser} />}
 				/>
 
-				<PrivateRoute exact path='/' component={BubblesPage} />
+				<Route exact path='/' component={BubblesPage} />
 			</div>
 		</Router>
 	);
