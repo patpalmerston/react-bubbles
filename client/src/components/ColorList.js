@@ -8,28 +8,27 @@ const initialColor = {
 };
 
 const ColorList = ({ colors, updateColors, getColors }) => {
-
 	const [editing, setEditing] = useState(false);
-  const [colorToEdit, setColorToEdit] = useState(initialColor);
-  
-  console.log('colorToEdit', colorToEdit);
+	const [colorToEdit, setColorToEdit] = useState(initialColor);
+
+	console.log('colorToEdit', colorToEdit);
 
 	const editColor = color => {
 		setEditing(true);
 		setColorToEdit(color);
 	};
 
-  // takes the click event and calls saveEdit on that event with the event action and colorToEdit
-  const onSaveEdit = (event) => {
-    saveEdit(event, colorToEdit)
-  }
+	// takes the click event and calls saveEdit on that event with the event action and colorToEdit
+	const onSaveEdit = event => {
+		saveEdit(event, colorToEdit);
+	};
 	//the current color to save is in the colorToEdit State so add it to the params
 	const saveEdit = (event, colorToEdit) => {
 		console.log('saveEdit', colorToEdit);
 		event.preventDefault();
 		// Make a put request to save your updated color
 		// think about where will you get the id from...
-		// where is is saved right now?
+		// where is is saved right now?--------THIS WAS THE KEY DAMMMMM IIIIITTTT!
 		axiosWithAuth()
 			.put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
 			.then(res => {
@@ -43,17 +42,22 @@ const ColorList = ({ colors, updateColors, getColors }) => {
 			.catch(err => {
 				console.log(err.response);
 			});
-
-		
 	};
 
+	const onDeleteColor = event => {
+		deleteColor(event, colorToEdit);
+	};
 
-  
-	const deleteColor = color => {
+	const deleteColor = (event, colorToEdit) => {
 		// make a delete request to delete this color
+		getColors();
+		event.preventDefault();
 		axiosWithAuth()
-			.delete(`http://localhost:5000/api/colors/${color.id}`)
-			.then(res => updateColors(res.data))
+			.delete(`http://localhost:5000/api/colors/${colorToEdit.id}`)
+      .then(res =>
+        //filter current state return the colors that do not match the id of selected color
+				updateColors(colors.filter(color => color.id !== colorToEdit.id))
+			)
 			.catch(err => console.error(err));
 	};
 
@@ -64,7 +68,7 @@ const ColorList = ({ colors, updateColors, getColors }) => {
 				{colors.map(color => (
 					<li key={color.color} onClick={() => editColor(color)}>
 						<span>
-							<span className='delete' onClick={() => deleteColor(color)}>
+							<span className='delete' onClick={onDeleteColor}>
 								x
 							</span>{' '}
 							{color.color}
@@ -101,7 +105,9 @@ const ColorList = ({ colors, updateColors, getColors }) => {
 						/>
 					</label>
 					<div className='button-row'>
-						<button type='submit' onClick={onSaveEdit}>save</button>
+						<button type='submit' onClick={onSaveEdit}>
+							save
+						</button>
 						<button onClick={() => setEditing(false)}>cancel</button>
 					</div>
 				</form>
