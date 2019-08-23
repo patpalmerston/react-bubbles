@@ -10,27 +10,17 @@ import './styles.scss';
 function App(props) {
 	const [colorList, setColorList] = useState([]);
 
-	const submitUser = user => {
-		axios
-			.post('http://localhost:5000/api/login', user)
-			.then(res => {
-				localStorage.setItem('token', res.data.payload);
-				console.log('token', res.data.payload);
-				props.history.push('/');
-			})
-			.catch(err => console.log('Your Error is a', err.message));
-	};
+	
 
 	return (
 		<Router>
 			<div className='App'>
 				<Route
-					exact
 					path='/login'
-					render={props => <Login {...props} submitUser={submitUser} />}
+					render={props => <Login {...props} />}
 				/>
 
-				<Route exact path='/' component={BubblesPage} />
+				<PrivateRoute path='/bubbles' component={BubblesPage} />
 			</div>
 		</Router>
 	);
