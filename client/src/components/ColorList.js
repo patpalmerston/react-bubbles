@@ -50,12 +50,12 @@ const ColorList = ({ colors, updateColors, getColors }) => {
 
 	const deleteColor = (event, colorToEdit) => {
 		// make a delete request to delete this color
-		getColors();
+
 		event.preventDefault();
 		axiosWithAuth()
 			.delete(`http://localhost:5000/api/colors/${colorToEdit.id}`)
-      .then(res =>
-        //filter current state return the colors that do not match the id of selected color
+			.then(res =>
+				//filter current state return the colors that do not match the id of selected color
 				updateColors(colors.filter(color => color.id !== colorToEdit.id))
 			)
 			.catch(err => console.error(err));
@@ -68,7 +68,15 @@ const ColorList = ({ colors, updateColors, getColors }) => {
 				{colors.map(color => (
 					<li key={color.color} onClick={() => editColor(color)}>
 						<span>
-							<span className='delete' onClick={onDeleteColor}>
+							{
+								// calling deleteColor on the event and mapped color
+							}
+							<span
+								className='delete'
+								onClick={e => {
+									deleteColor(e, color);
+								}}
+							>
 								x
 							</span>{' '}
 							{color.color}
